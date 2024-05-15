@@ -1,5 +1,6 @@
 pub mod openqa_vde;
 pub mod openqa_worker;
+pub mod openqa_build_reporter;
 pub mod systemd_escape;
 
 #[derive(Debug, Clone)]
