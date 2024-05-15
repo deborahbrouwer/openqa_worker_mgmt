@@ -22,7 +22,7 @@ pub fn start_worker(
     build_option: Option<&str>,
     arch_option: Option<&str>,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let mut openqa_worker_instance = match instance {
+    let openqa_worker_instance = match instance {
         Some(i) => {
             let mut num = *i;
             while !instance_number_is_available(num.to_string()) {
@@ -136,11 +136,9 @@ pub fn stop_worker(instance_name: &str) -> Result<(), Box<dyn std::error::Error>
 
 pub fn get_workers_to_stop() -> Result<Vec<String>, Box<dyn std::error::Error>> {
     let builds_to_stop = get_builds_to_stop()?;
-
     let current_workers = get_workers()?;
 
     let mut workers_to_stop = Vec::new();
-
     for worker in current_workers {
         let _instance_number = worker.split('#').next();
         let worker_build = worker.split('#').nth(1);
@@ -153,6 +151,5 @@ pub fn get_workers_to_stop() -> Result<Vec<String>, Box<dyn std::error::Error>> 
             }
         }
     }
-
     Ok(workers_to_stop)
 }

@@ -38,7 +38,6 @@ pub fn get_scheduled_builds() -> Result<Vec<String>, Box<dyn std::error::Error>>
             builds_unique.push(line.to_string());
         }
     }
-
     Ok(builds_unique)
 }
 
@@ -62,13 +61,13 @@ pub fn get_running_builds() -> Result<Vec<String>, Box<dyn std::error::Error>> {
     Ok(builds_unique)
 }
 
-pub fn get_required_builds() -> Result<Vec<String>, Box<dyn std::error::Error>> {
-    let mut required_builds = get_scheduled_builds().unwrap();
-    required_builds.extend(get_running_builds().unwrap());
-    Ok(required_builds)
+pub fn get_builds_to_keep() -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    let mut builds_to_keep = get_scheduled_builds().unwrap();
+    builds_to_keep.extend(get_running_builds().unwrap());
+    Ok(builds_to_keep)
 }
 
-pub fn get_current_builds() -> Result<Vec<String>, Box<dyn std::error::Error>> {
+pub fn get_current_worker_builds() -> Result<Vec<String>, Box<dyn std::error::Error>> {
     let worker_list = get_workers().unwrap();
 
     let mut builds = Vec::new();
@@ -89,8 +88,8 @@ pub fn get_current_builds() -> Result<Vec<String>, Box<dyn std::error::Error>> {
     Ok(builds_unique)
 }
 
-pub fn print_current_builds() -> Result<(), Box<dyn std::error::Error>> {
-    let build_list = get_current_builds().unwrap();
+pub fn print_current_worker_builds() -> Result<(), Box<dyn std::error::Error>> {
+    let build_list = get_current_worker_builds().unwrap();
 
     for build in build_list {
         println!("{:?}", build);
@@ -98,15 +97,29 @@ pub fn print_current_builds() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+/// If a current worker build is not in the list of builds to keep, then it is a build to stop.
 pub fn get_builds_to_stop() -> Result<Vec<String>, Box<dyn std::error::Error>> {
-    let cur = get_current_builds()?;
-    let req = get_required_builds()?;
+    let current = get_current_worker_builds()?;
+    let builds_to_keep = get_builds_to_keep()?;
 
-    let builds_to_stop = cur
+    let builds_to_stop = current
         .iter()
-        .filter(|current_build| !req.contains(current_build))
+        .filter(|current_build| !builds_to_keep.contains(current_build))
         .cloned()
         .collect();
 
     Ok(builds_to_stop)
+}
+
+pub fn get_builds_to_start() -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    let scheduled = get_scheduled_builds()?;
+    let current_worker_builds = get_current_worker_builds()?;
+
+    let builds_to_start = scheduled
+        .iter()
+        .filter(|scheduled_build| !current_worker_builds.contains(scheduled_build))
+        .cloned()
+        .collect();
+
+    Ok(builds_to_start)
 }
