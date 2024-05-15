@@ -43,8 +43,6 @@ pub fn stop_vde(instance_name: &str) -> Result<(), Box<dyn std::error::Error>> {
             ))));
         }
     };
-
-    //TODO delete the switch directory too
     Ok(())
 }
 
@@ -94,8 +92,8 @@ pub fn print_vde_switches() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-pub fn get_vde_switches_to_stop() -> Result<Vec<String>, Box<dyn std::error::Error>> {
-    let builds_to_stop = get_builds_to_stop()?;
+pub fn get_vde_switches_to_stop(path: &String) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    let builds_to_stop = get_builds_to_stop(path)?;
     let current_switches = get_vde_switches()?;
     let mut switches_to_stop = Vec::new();
 

@@ -134,8 +134,8 @@ pub fn stop_worker(instance_name: &str) -> Result<(), Box<dyn std::error::Error>
     Ok(())
 }
 
-pub fn get_workers_to_stop() -> Result<Vec<String>, Box<dyn std::error::Error>> {
-    let builds_to_stop = get_builds_to_stop()?;
+pub fn get_workers_to_stop(path: &String) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    let builds_to_stop = get_builds_to_stop(path)?;
     let current_workers = get_workers()?;
 
     let mut workers_to_stop = Vec::new();

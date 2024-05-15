@@ -5,8 +5,15 @@ use openqa_worker_mgmt::{
 };
 use std::thread;
 use std::time::Duration;
+use std::env;
 
 fn main() {
+    let args: Vec<String> = env::args().collect();
+    if args.len() != 2 {
+        eprintln!("Usage: {} <openqa-build-reporter path>", args[0]);
+        return;
+    }
+    let path = &args[1];
 
     if let Err(err) = start_build_reporter() {
         eprintln! {"{}", err};
@@ -18,7 +25,7 @@ fn main() {
     // Since the switches to stop is calculated using the workers to stop,
     // stop the switches before stopping the workers.
     println!("Stopping vde switches:");
-    let vde_switches_to_stop = match get_vde_switches_to_stop() {
+    let vde_switches_to_stop = match get_vde_switches_to_stop(path) {
         Ok(vde_switches_to_stop) => vde_switches_to_stop,
         Err(err) => {
             eprintln! {"{}", err};
@@ -35,7 +42,7 @@ fn main() {
     }
 
     println!("Stopping parallel workers:");
-    let workers_to_stop = match get_workers_to_stop() {
+    let workers_to_stop = match get_workers_to_stop(path) {
         Ok(workers_to_stop) => workers_to_stop,
         Err(err) => {
             eprintln! {"{}", err};
@@ -52,7 +59,7 @@ fn main() {
     }
 
     println!("Starting vde switches:");
-    let builds_to_start = match get_builds_to_start() {
+    let builds_to_start = match get_builds_to_start(path) {
         Ok(builds_to_start) => builds_to_start,
         Err(err) => {
             eprintln! {"{}", err};

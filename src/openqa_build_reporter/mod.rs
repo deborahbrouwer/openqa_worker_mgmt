@@ -22,9 +22,8 @@ pub fn start_build_reporter() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-pub fn get_scheduled_builds() -> Result<Vec<String>, Box<dyn std::error::Error>> {
-    let path = "/home/fedora/my_cloud/openqa-build-reporter/scheduled_builds/scheduled_builds";
-    let build_file = File::open(path)?;
+pub fn get_scheduled_builds(path: &String) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    let build_file = File::open(path.to_owned() + "/scheduled_builds/scheduled_builds")?;
     let reader = BufReader::new(build_file);
 
     let mut builds = Vec::new();
@@ -41,9 +40,8 @@ pub fn get_scheduled_builds() -> Result<Vec<String>, Box<dyn std::error::Error>>
     Ok(builds_unique)
 }
 
-pub fn get_running_builds() -> Result<Vec<String>, Box<dyn std::error::Error>> {
-    let path = "/home/fedora/my_cloud/openqa-build-reporter/running_builds/running_builds";
-    let build_file = File::open(path)?;
+pub fn get_running_builds(path: &String) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    let build_file = File::open(path.to_owned() + "/running_builds/running_builds")?;
     let reader = BufReader::new(build_file);
 
     let mut builds = Vec::new();
@@ -61,9 +59,9 @@ pub fn get_running_builds() -> Result<Vec<String>, Box<dyn std::error::Error>> {
     Ok(builds_unique)
 }
 
-pub fn get_builds_to_keep() -> Result<Vec<String>, Box<dyn std::error::Error>> {
-    let mut builds_to_keep = get_scheduled_builds().unwrap();
-    builds_to_keep.extend(get_running_builds().unwrap());
+pub fn get_builds_to_keep(path: &String) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    let mut builds_to_keep = get_scheduled_builds(&path.clone()).unwrap();
+    builds_to_keep.extend(get_running_builds(path).unwrap());
     Ok(builds_to_keep)
 }
 
@@ -98,9 +96,9 @@ pub fn print_current_worker_builds() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 /// If a current worker build is not in the list of builds to keep, then it is a build to stop.
-pub fn get_builds_to_stop() -> Result<Vec<String>, Box<dyn std::error::Error>> {
+pub fn get_builds_to_stop(path: &String) -> Result<Vec<String>, Box<dyn std::error::Error>> {
     let current = get_current_worker_builds()?;
-    let builds_to_keep = get_builds_to_keep()?;
+    let builds_to_keep = get_builds_to_keep(path)?;
 
     let builds_to_stop = current
         .iter()
@@ -111,8 +109,8 @@ pub fn get_builds_to_stop() -> Result<Vec<String>, Box<dyn std::error::Error>> {
     Ok(builds_to_stop)
 }
 
-pub fn get_builds_to_start() -> Result<Vec<String>, Box<dyn std::error::Error>> {
-    let scheduled = get_scheduled_builds()?;
+pub fn get_builds_to_start(path: &String) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    let scheduled = get_scheduled_builds(path)?;
     let current_worker_builds = get_current_worker_builds()?;
 
     let builds_to_start = scheduled
