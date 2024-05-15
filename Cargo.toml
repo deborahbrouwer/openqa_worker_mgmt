@@ -4,4 +4,4 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-systemctl = { path = "/home/fedora/openqa-worker-manager/systemctl" }
+systemctl = { git = "https://github.com/deborahbrouwer/systemctl.git", branch = "dbrouwer/add_functions" }
