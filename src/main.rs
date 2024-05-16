@@ -19,8 +19,9 @@ fn main() {
         eprintln! {"{}", err};
         return;
     }
+    //TODO handle proxy errors
     println!("Waiting for openqa-cli api queries.");
-    thread::sleep(Duration::from_secs(30));
+    thread::sleep(Duration::from_secs(60));
 
     // Since the switches to stop is calculated using the workers to stop,
     // stop the switches before stopping the workers.
@@ -75,8 +76,10 @@ fn main() {
         }
     }
 
-    // start two workers for each new build
+    // start three workers for each new build e.g. support_server needs three
+    // TODO refine this based on test
     println!("Starting workers:");
+    //Deliberately start parallel workers at two to avoid -1 = 0 errors
     let mut count:i32 = 2;
     for build in &builds_to_start {
         println!("\t{}", build);
@@ -90,6 +93,10 @@ fn main() {
             return;
         }
         count +=1;
+        if let Err(err) = start_worker(Some(&count), Some(build.as_str()), None) {
+            eprintln! {"{}", err};
+            return;
+        }
     }
     println!("See all switches and workers with: podman ps -a --format \"{{{{.Names}}}}\"");
 

@@ -31,10 +31,18 @@ pub fn get_scheduled_builds(path: &String) -> Result<Vec<String>, Box<dyn std::e
         builds.push(line?);
     }
 
+    // Try to avoid overwhelming the machine. Each scheduled build
+    // creates 4 containers: a vde switch + 3 workers.
+    let mut count: i32 = 0;
     let mut builds_unique = Vec::new();
     for line in &builds {
         if !builds_unique.contains(line) {
             builds_unique.push(line.to_string());
+            count += 1;
+            if count > 10 {
+                println!("max 10");
+                break;
+            }
         }
     }
     Ok(builds_unique)
