@@ -67,9 +67,28 @@ pub fn get_running_builds(path: &String) -> Result<Vec<String>, Box<dyn std::err
     Ok(builds_unique)
 }
 
+pub fn get_uploading_builds(path: &String) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    let build_file = File::open(path.to_owned() + "/uploading_builds/uploading_builds")?;
+    let reader = BufReader::new(build_file);
+
+    let mut builds = Vec::new();
+    for line in reader.lines() {
+        builds.push(line?);
+    }
+
+    let mut builds_unique = Vec::new();
+    for line in &builds {
+        if !builds_unique.contains(line) {
+            builds_unique.push(line.to_string());
+        }
+    }
+
+    Ok(builds_unique)
+}
 pub fn get_builds_to_keep(path: &String) -> Result<Vec<String>, Box<dyn std::error::Error>> {
     let mut builds_to_keep = get_scheduled_builds(&path.clone()).unwrap();
     builds_to_keep.extend(get_running_builds(path).unwrap());
+    builds_to_keep.extend(get_uploading_builds(path).unwrap());
     Ok(builds_to_keep)
 }
 
